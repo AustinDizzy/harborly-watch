@@ -24,7 +24,7 @@ func main() {
 
     c := cron.New()
     c.AddFunc("@every " + Config.Interval, func(){
-        resp, _ := http.Get("https://harborly.com/ticker/" + Config.Coin + "/" + Config.Fiat)
+        resp, _ := http.Get("https://harbor.ly/ticker/" + Config.Coin + "/" + Config.Fiat)
         body, _ := ioutil.ReadAll(resp.Body)
         var r map[string]interface{}
         json.Unmarshal(body, &r)
