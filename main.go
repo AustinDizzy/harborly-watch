@@ -1,86 +1,86 @@
 package main
 
 import (
-    "log"
-    "fmt"
-    "encoding/json"
-    "net/http"
-    "io/ioutil"
-    "github.com/robfig/cron"
-    "github.com/boltdb/bolt"
-    "strconv"
-    "math"
+	"encoding/json"
+	"fmt"
+	"github.com/boltdb/bolt"
+	"github.com/robfig/cron"
+	"io/ioutil"
+	"log"
+	"math"
+	"net/http"
+	"strconv"
 )
 
 func main() {
 
-    LoadConfig()
+	LoadConfig()
 
-    db, err := bolt.Open("harborly.db", 0600, nil)
-    if err != nil {
-        log.Fatal(err)
-    }
-    defer db.Close()
+	db, err := bolt.Open("harborly.db", 0600, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
 
-    c := cron.New()
-    c.AddFunc("@every " + Config.Interval, func(){
-        resp, _ := http.Get("https://harbor.ly/ticker/" + Config.Coin + "/" + Config.Fiat)
-        body, _ := ioutil.ReadAll(resp.Body)
-        var r map[string]interface{}
-        json.Unmarshal(body, &r)
+	c := cron.New()
+	c.AddFunc("@every "+Config.Interval, func() {
+		resp, _ := http.Get("https://harbor.ly/ticker/" + Config.Coin + "/" + Config.Fiat)
+		body, _ := ioutil.ReadAll(resp.Body)
+		var r map[string]interface{}
+		json.Unmarshal(body, &r)
 
-        db.Update(func(tx *bolt.Tx) error {
-            b, err := tx.CreateBucketIfNotExists([]byte("BTCTicker"))
-            if err != nil {
-                return fmt.Errorf("create bucket: %s", err)
-            }
-            askVal := b.Get([]byte("ask"))
-            bidVal := b.Get([]byte("bid"))
+		db.Update(func(tx *bolt.Tx) error {
+			b, err := tx.CreateBucketIfNotExists([]byte("BTCTicker"))
+			if err != nil {
+				return fmt.Errorf("create bucket: %s", err)
+			}
+			askVal := b.Get([]byte("ask"))
+			bidVal := b.Get([]byte("bid"))
 
-            if askVal == nil {
-                bytesAsk := []byte(r["ask"].(string))
-                b.Put([]byte("ask"), bytesAsk)
-            } else {
-                checkPrice(b, "ask", askVal)
-            }
+			if askVal == nil {
+				bytesAsk := []byte(r["ask"].(string))
+				b.Put([]byte("ask"), bytesAsk)
+			} else {
+				checkPrice(b, "ask", askVal)
+			}
 
-            if bidVal == nil {
-                bytesBid := []byte(r["bid"].(string))
-                b.Put([]byte("bid"), bytesBid)
-            } else {
-                checkPrice(b, "bid", bidVal)
-            }
+			if bidVal == nil {
+				bytesBid := []byte(r["bid"].(string))
+				b.Put([]byte("bid"), bytesBid)
+			} else {
+				checkPrice(b, "bid", bidVal)
+			}
 
-            return nil
-        })
-    })
+			return nil
+		})
+	})
 
-    c.Start()
-    select{}
+	c.Start()
+	select {}
 }
 
 func checkPrice(b *bolt.Bucket, key string, val []byte) {
-    v, err := strconv.ParseFloat(string(val), 64)
-    bytesOrigVal := b.Get([]byte(key))
-    LogErr(err)
+	v, err := strconv.ParseFloat(string(val), 64)
+	bytesOrigVal := b.Get([]byte(key))
+	LogErr(err)
 
-    if bytesOrigVal == nil {
-        return
-    }
+	if bytesOrigVal == nil {
+		return
+	}
 
-    origVal, err := strconv.ParseFloat(string(bytesOrigVal), 64)
-    LogErr(err)
+	origVal, err := strconv.ParseFloat(string(bytesOrigVal), 64)
+	LogErr(err)
 
-    diff := origVal - v
-    if math.Abs(diff) >= Config.Difference {
-        SendEmail(diff)
-    }
+	diff := origVal - v
+	if math.Abs(diff) >= Config.Difference {
+		SendEmail(diff)
+	}
 }
 
 //LogErr only logs an error to the console
 //if and only if the error is not nil.
 func LogErr(err error) {
-    if err != nil {
-        log.Printf("got error: %v", err.Error())
-    }
+	if err != nil {
+		log.Printf("got error: %v", err.Error())
+	}
 }
