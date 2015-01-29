@@ -11,8 +11,7 @@ import (
 var Config *ConfigFile
 
 type ConfigFile struct {
-    URL string
-    Interval string
+    Coin, Fiat, Interval string
     Difference int
     Email struct {
         Username, Password, Server string
