@@ -11,17 +11,20 @@ import (
     "strconv"
 )
 
-type EmailVars struct {
+type emailVars struct {
     From, To, Title string
     Coin, Direction, Fiat, Interval string
     Difference float64
 }
 
+//SendEmail sends email to configured user, using
+//pre-configured SMTP auth settings, about the latest
+//price delta as diff.
 func SendEmail(diff float64) {
 
     var body bytes.Buffer
-    from := mail.Address{"harboly-watch", Config.Email.Username}
-    emailVars := EmailVars{
+    from := mail.Address{Name: "harboly-watch", Address: Config.Email.Username}
+    email := emailVars{
         from.String(),
         Config.Email.Recipient,
         "",
@@ -32,17 +35,17 @@ func SendEmail(diff float64) {
         math.Abs(diff),
     }
 
-    strDiff := strconv.FormatFloat(emailVars.Difference, 'g', 2, 64)
-    emailVars.Title = encodeRFC2047(emailVars.Coin + " PRICE ALERT: $" + strDiff + " " + emailVars.Fiat + " CHANGE.")
+    strDiff := strconv.FormatFloat(email.Difference, 'g', 2, 64)
+    email.Title = encodeRFC2047(email.Coin + " PRICE ALERT: $" + strDiff + " " + email.Fiat + " CHANGE.")
 
     if math.Abs(diff) != diff {
-        emailVars.Direction = "INCREASED"
+        email.Direction = "INCREASED"
     } else {
-        emailVars.Direction = "DECREASED"
+        email.Direction = "DECREASED"
     }
 
     t := template.Must(template.ParseFiles("email.tmpl"))
-    err := t.Execute(&body, emailVars)
+    err := t.Execute(&body, email)
     LogErr(err)
 
     err = smtp.SendMail(Config.Email.Server + ":" + strconv.Itoa(Config.Email.Port),
@@ -63,6 +66,6 @@ func SendEmail(diff float64) {
 }
 
 func encodeRFC2047(String string) string{
-	addr := mail.Address{String, ""}
+	addr := mail.Address{Name: String, Address: ""}
 	return strings.Trim(addr.String(), " <>")
 }

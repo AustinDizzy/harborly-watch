@@ -77,6 +77,8 @@ func checkPrice(b *bolt.Bucket, key string, val []byte) {
     }
 }
 
+//LogErr only logs an error to the console
+//if and only if the error is not nil.
 func LogErr(err error) {
     if err != nil {
         log.Printf("got error: %v", err.Error())
