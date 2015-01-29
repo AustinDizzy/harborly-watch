@@ -13,6 +13,9 @@ import (
 )
 
 func main() {
+
+    LoadConfig()
+
     db, err := bolt.Open("harborly.db", 0600, nil)
     if err != nil {
         log.Fatal(err)
@@ -20,8 +23,8 @@ func main() {
     defer db.Close()
 
     c := cron.New()
-    c.AddFunc("@every 3s", func(){
-        resp, _ := http.Get("https://harbor.ly/ticker/btc/cad")
+    c.AddFunc("@every " + Config.Interval, func(){
+        resp, _ := http.Get(Config.URL)
         body, _ := ioutil.ReadAll(resp.Body)
         var r map[string]interface{}
         json.Unmarshal(body, &r)
