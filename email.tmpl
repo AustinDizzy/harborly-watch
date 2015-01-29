@@ -1,0 +1,18 @@
+From: {{.From}}
+To: {{.To}}
+Subject: {{.Title}}
+Content-Type: text/html; charset=UTF-8
+
+<h2>Warning!</h2>
+<p>
+    You are receiving this email because {{.Coin}} has 
+    <b style="color:{{if eq .Direction `INCREASED`}} #228B22 {{else}} #B22222 {{end}}">{{.Direction}}</b>
+    in price by <b style="color:{{if eq .Direction `INCREASED`}} #228B22 {{else}} #B22222 {{end}}">${{.Difference}}</b> {{.Fiat}}
+    in the last {{.Interval}}.
+
+    Visit harbor.ly's exchange at <a href="https://harbor.ly">https://harbor.ly</a> to manage funds.
+</p>
+
+--
+
+Sent via <a href="https://github.com/AustinDizzy/harborly-watch">harborly-watch</a>.

@@ -12,7 +12,7 @@ var Config *ConfigFile
 
 type ConfigFile struct {
     Coin, Fiat, Interval string
-    Difference int
+    Difference float64
     Email struct {
         Username, Password, Server string
         Port int

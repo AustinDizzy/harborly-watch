@@ -71,9 +71,9 @@ func checkPrice(b *bolt.Bucket, key string, val []byte) {
     origVal, err := strconv.ParseFloat(string(bytesOrigVal), 64)
     LogErr(err)
 
-    diff := math.Abs(origVal - v)
-    if diff >= 5 {
-        //todo: send email
+    diff := origVal - v
+    if math.Abs(diff) >= Config.Difference {
+        SendEmail(diff)
     }
 }
 
