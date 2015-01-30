@@ -3,7 +3,19 @@ A quick and simple Go app that sends email notifications (SMS via Twilio maybe s
 
 ### Installing
 
-Full instructions coming soon. Essentially, do the following: `git clone` this repo, `go build` it, make the config.yaml file, and daemonize the binary.
+**With Go**
+````bash
+$ go get github.com/austindizzy/harborly-watch
+$ cd $GOPATH/src/github.com/austindizzy/githook
+$ vim config.yaml # see "config.yaml" example below
+$ make install
+````
+
+NOTE: `make install` will require sudo credentials to move files to the /opt/ and /etc/init.d directories.
+
+**Without Go**
+
+*Coming soon.*
 
 ### Example config.yaml
 A `config.yaml` file needs to be in the same working directory as the binary. Example contents include:
@@ -19,4 +31,12 @@ email:
   server: smtp.example.com
   port: 587
   recipient: user@domain.com
+````
+
+### Starting harborly-watch service
+After installing:
+````bash
+$ sudo service harborly-watch start
+--
+$ sudo update-rc.d githook defaults # sets harborly-watch as a default service, runs on system boot
 ````
