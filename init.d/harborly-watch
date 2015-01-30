@@ -1,0 +1,82 @@
+#!/bin/sh
+
+# START CONFIG EDITS
+
+BIN_APP='harborly-watch'
+APP_ROOT=/opt/harborly-watch
+PID_LOC=$APP_ROOT/pid
+PID_FILE=$PIC_LOC/harborly-watch.pid
+LOG_LOC=$APP_ROOT/log
+LOG_FILE=$LOG_LOC/harborly-watch.log
+
+# END CONFIG EDITS
+
+NAME=`basename $0`
+
+mkdir -p $PID_LOC
+mkdir -p $LOG_LOC
+
+if [ -f /etc/redhat-release ] ; then
+    . /etc/redhat-lsb/lsb_log_message
+else
+    . /lib/lsb/init-functions
+fi
+
+start_app (){
+    log_daemon_msg "Starting $NAME app"
+    if [ -f $PID_FILE ] ; then
+        log_end_msg 1
+        log_failure_msg "$PID_FILE exists. Process `cat $PID_FILE` is already running or has crashed."
+    else
+        log_end_msg 0
+        $APP_ROOT/$BIN_APP  1>$LOG_FILE 2>&1 &
+        echo $! > $PID_FILE;
+    fi
+}
+
+stop_app (){
+    log_daemon_msg "Stopping $NAME app"
+    if [ ! -f $PID_FILE ] ; then
+        log_end_msg 1
+        log_failure_msg "$PID_FILE does'nt exist. $NAME is not running."
+    else
+        kill `cat $PID_FILE`;
+        rm -f $PID_FILE;
+        log_end_msg 0
+    fi
+}
+
+case "$1" in
+    start)
+        start_app
+    ;;
+
+    stop)
+        stop_app
+    ;;
+
+    restart)
+        stop_app
+        start_app
+    ;;
+
+    status)
+        if [ -f $PID_FILE ]
+        then
+            PID=`cat $PID_FILE`
+            if [ -z "`ps -ef | grep $PID | grep -v grep`" ]
+            then
+                log_success_msg "$NAME app stopped but PID file exists"
+            else
+                log_success_msg "$NAME app running with PID $PID"
+
+            fi
+        else
+            log_success_msg "$NAME app stopped"
+        fi
+    ;;
+
+    *)
+        echo "Usage: service $NAME {start|stop|restart|status}"
+    ;;
+esac
