@@ -9,6 +9,7 @@ import (
 	"log"
 	"math"
 	"net/http"
+	"path"
 	"strconv"
 )
 
@@ -16,14 +17,14 @@ func main() {
 
 	LoadConfig()
 
-	db, err := bolt.Open("harborly.db", 0600, nil)
+	db, err := bolt.Open(path.Join(GetDir(), "harborly.db"), 0600, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
 	c := cron.New()
-	c.AddFunc("@every "+Config.Interval, func() {
+	c.AddFunc("@every " + Config.Interval, func() {
 		resp, _ := http.Get("https://harbor.ly/ticker/" + Config.Coin + "/" + Config.Fiat)
 		body, _ := ioutil.ReadAll(resp.Body)
 		var r map[string]interface{}
