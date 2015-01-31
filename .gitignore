@@ -1,2 +1,4 @@
 *.db
 config.yaml
+harborly-watch
+bin/*
