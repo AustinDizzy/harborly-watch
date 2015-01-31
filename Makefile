@@ -15,7 +15,7 @@ install: build install_service
 		sudo mkdir -p /opt/harborly-watch/$$dir ; \
 	done
 	sudo cp ./bin/harborly-watch /opt/harborly-watch/bin/
-	if [ -a config.yaml ] ; \
+	@if [ -s config.yaml ] ; \
 	then \
 		sudo cp ./config.yaml /opt/harborly-watch/bin/ ; \
 	fi;
