@@ -4,10 +4,11 @@
 
 BIN_APP='harborly-watch'
 APP_ROOT=/opt/harborly-watch
-PID_LOC=$APP_ROOT/pid
-PID_FILE=$PIC_LOC/harborly-watch.pid
-LOG_LOC=$APP_ROOT/log
-LOG_FILE=$LOG_LOC/harborly-watch.log
+BIN_LOC=${APP_ROOT}/bin
+PID_LOC=${APP_ROOT}/pid
+PID_FILE=${PID_LOC}/harborly-watch.pid
+LOG_LOC=${APP_ROOT}/log
+LOG_FILE=${LOG_LOC}/harborly-watch.log
 
 # END CONFIG EDITS
 
@@ -29,7 +30,7 @@ start_app (){
         log_failure_msg "$PID_FILE exists. Process `cat $PID_FILE` is already running or has crashed."
     else
         log_end_msg 0
-        $APP_ROOT/$BIN_APP  1>$LOG_FILE 2>&1 &
+        $BIN_LOC/$BIN_APP  1>$LOG_FILE 2>&1 &
         echo $! > $PID_FILE;
     fi
 }
