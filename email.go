@@ -6,6 +6,7 @@ import (
 	"math"
 	"net/mail"
 	"net/smtp"
+	"path"
 	"strconv"
 	"strings"
 	"text/template"
@@ -44,7 +45,8 @@ func SendEmail(diff float64) {
 		email.Direction = "DECREASED"
 	}
 
-	t := template.Must(template.ParseFiles("email.tmpl"))
+	file := path.Join(GetDir(), "email.tmpl")
+	t := template.Must(template.ParseFiles(file))
 	err := t.Execute(&body, email)
 	LogErr(err)
 
