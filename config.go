@@ -30,15 +30,15 @@ func LoadConfig() {
 	configFile, _ := ioutil.ReadFile(file)
 	yaml.Unmarshal(configFile, &Config)
 	if Config != nil {
-	    log.Printf("loaded config: %v", Config)
+		log.Printf("loaded config: %v", Config)
 	} else {
-	    log.Printf("Error loading config.yaml file in %v.", GetDir())
-	    os.Exit(1)
+		log.Printf("Error loading config.yaml file in %v.", GetDir())
+		os.Exit(1)
 	}
 }
 
 //GetDir return the current directory holding the executable
 func GetDir() string {
-    dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
-    return dir
+	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	return dir
 }
