@@ -24,7 +24,7 @@ func main() {
 	defer db.Close()
 
 	c := cron.New()
-	c.AddFunc("@every " + Config.Interval, func() {
+	c.AddFunc("@every "+Config.Interval, func() {
 		resp, _ := http.Get("https://harbor.ly/ticker/" + Config.Coin + "/" + Config.Fiat)
 		body, _ := ioutil.ReadAll(resp.Body)
 		var r map[string]interface{}
@@ -35,21 +35,25 @@ func main() {
 			if err != nil {
 				return fmt.Errorf("create bucket: %s", err)
 			}
+
 			askVal := b.Get([]byte("ask"))
 			bidVal := b.Get([]byte("bid"))
 
+			bytesAsk := []byte(r["ask"].(string))
+			bytesBid := []byte(r["bid"].(string))
+
 			if askVal == nil {
-				bytesAsk := []byte(r["ask"].(string))
-				b.Put([]byte("ask"), bytesAsk)
+				updateField(b, "ask", bytesAsk)
 			} else {
-				checkPrice(b, "ask", askVal)
+				checkPrice(b, "ask", bytesAsk)
+				updateField(b, "ask", bytesAsk)
 			}
 
 			if bidVal == nil {
-				bytesBid := []byte(r["bid"].(string))
-				b.Put([]byte("bid"), bytesBid)
+				updateField(b, "bid", bytesBid)
 			} else {
-				checkPrice(b, "bid", bidVal)
+				checkPrice(b, "bid", bytesBid)
+				updateField(b, "bid", bytesBid)
 			}
 
 			return nil
@@ -76,6 +80,10 @@ func checkPrice(b *bolt.Bucket, key string, val []byte) {
 	if math.Abs(diff) >= Config.Difference {
 		SendEmail(diff)
 	}
+}
+
+func updateField(b *bolt.Bucket, key string, newVal []byte) {
+	b.Put([]byte(key), newVal)
 }
 
 //LogErr only logs an error to the console
