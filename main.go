@@ -36,24 +36,15 @@ func main() {
 				return fmt.Errorf("create bucket: %s", err)
 			}
 
-			askVal := b.Get([]byte("ask"))
-			bidVal := b.Get([]byte("bid"))
+			for _, v := range []string{"bid", "ask"} {
+				val := b.Get([]byte(v))
+				bytesVal := []byte(r[v].(string))
 
-			bytesAsk := []byte(r["ask"].(string))
-			bytesBid := []byte(r["bid"].(string))
+				if val != nil {
+					checkPrice(b, v, bytesVal)
+				}
 
-			if askVal == nil {
-				updateField(b, "ask", bytesAsk)
-			} else {
-				checkPrice(b, "ask", bytesAsk)
-				updateField(b, "ask", bytesAsk)
-			}
-
-			if bidVal == nil {
-				updateField(b, "bid", bytesBid)
-			} else {
-				checkPrice(b, "bid", bytesBid)
-				updateField(b, "bid", bytesBid)
+				updateField(b, v, bytesAsk)
 			}
 
 			return nil
