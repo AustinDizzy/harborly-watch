@@ -27,6 +27,9 @@ type ConfigFile struct {
 //file to the global variable Config as type *ConfigFile.
 func LoadConfig() {
 	file := path.Join(GetDir(), "config.yaml")
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+	    file = path.Join(GetDir(), "..", "etc", "config.yaml")
+	}
 	configFile, _ := ioutil.ReadFile(file)
 	yaml.Unmarshal(configFile, &Config)
 	if Config != nil {
