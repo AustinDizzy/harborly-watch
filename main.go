@@ -44,7 +44,7 @@ func main() {
 					checkPrice(b, v, bytesVal)
 				}
 
-				updateField(b, v, bytesAsk)
+				updateField(b, v, bytesVal)
 			}
 
 			return nil
